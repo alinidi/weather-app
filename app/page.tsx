@@ -1,12 +1,20 @@
 import { CurrentWeather } from '@/components/currentWeather/CurrentWeather';
+import { DailyForecast } from '@/components/dailyForecast/DailyForecast';
 import { SearchBar } from '@/components/searchBar/SearchBar';
 import { WeatherMetrics } from '@/components/weatherMetrics/WeatherMetrics';
+import sunny from '../assets/images/icon-sunny.webp';
+import rain from '../assets/images/icon-rain.webp';
+import snow from '../assets/images/icon-snow.webp';
+import fog from '../assets/images/icon-fog.webp';
+import cloudy from '../assets/images/icon-partly-cloudy.webp';
+import storm from '../assets/images/icon-storm.webp';
+import drizzle from '../assets/images/icon-drizzle.webp';
 
 export default function Home() {
     const metrics = [
         {
             name: 'Feels Like',
-            value: '18&#176;',
+            value: '18°',
         },
         {
             name: 'Humidity',
@@ -19,6 +27,51 @@ export default function Home() {
         {
             name: 'Precipitation',
             value: '0 mm',
+        },
+    ];
+
+    const dailyForecast = [
+        {
+            date: 'Tue',
+            img: sunny,
+            day: '20°',
+            night: '14°',
+        },
+        {
+            date: 'Wed',
+            img: storm,
+            day: '20°',
+            night: '14°',
+        },
+        {
+            date: 'Thu',
+            img: drizzle,
+            day: '20°',
+            night: '14°',
+        },
+        {
+            date: 'Fri',
+            img: rain,
+            day: '21°',
+            night: '15°',
+        },
+        {
+            date: 'Sat',
+            img: cloudy,
+            day: '21°',
+            night: '15°',
+        },
+        {
+            date: 'Sun',
+            img: snow,
+            day: '25°',
+            night: '16°',
+        },
+        {
+            date: 'Mon',
+            img: fog,
+            day: '24°',
+            night: '15°',
         },
     ];
 
@@ -37,6 +90,20 @@ export default function Home() {
                                 key={`${metric.name}-${metric.value}`}
                                 name={metric.name}
                                 value={metric.value}
+                            />
+                        ))}
+                    </div>
+                </div>
+                <div className="mt-5">
+                    <p className="text-white text-xl mb-2">Daily forecast</p>
+                    <div className="grid grid-cols-3 gap-4 md:grid-cols-7">
+                        {dailyForecast.map((day) => (
+                            <DailyForecast
+                                key={`${day} + ${day.date}`}
+                                date={day.date}
+                                img={day.img}
+                                day={day.day}
+                                night={day.night}
                             />
                         ))}
                     </div>
