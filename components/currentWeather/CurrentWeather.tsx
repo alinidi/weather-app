@@ -25,12 +25,16 @@ export const CurrentWeather = () => {
             <Image src={width > 640 ? bgLarge : bgSmall} alt="current weather" className="w-full" />
             <div className="absolute inset-0 p-4 sm:p-8 flex flex-col sm:flex-row justify-between">
                 <div className="text-center sm:text-left sm:self-center">
-                    <p className="text-white font-bold text-3xl sm:text-4xl">Berlin, Germany</p>
-                    <p className="text-gray-300 text-lg sm:text-2xl mt-1">Tuesday, Aug 5, 2026</p>
+                    <p className="text-white font-bold text-3xl sm:text-4xl md:text-xl">
+                        Berlin, Germany
+                    </p>
+                    <p className="text-gray-300 text-lg sm:text-2xl mt-1 md:text-sm">
+                        Tuesday, Aug 5, 2026
+                    </p>
                 </div>
                 <div className="flex flex-row items-center justify-between mt-6 sm:mt-0 sm:self-center">
-                    <Image width={200} className="sm:w-50" src={sunny} alt="weather icon" />
-                    <span className="text-7xl mb-3 text-white font-bold">25&#176;</span>
+                    <Image width={200} className="sm:w-50 md:w-25" src={sunny} alt="weather icon" />
+                    <span className="text-7xl mb-3 text-white font-bold md:text-5xl">25&#176;</span>
                 </div>
             </div>
         </div>
