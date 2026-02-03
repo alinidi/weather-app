@@ -3,7 +3,7 @@ import Image from 'next/image';
 
 export const SearchBar = () => {
     return (
-        <div className="flex flex-col gap-3 w-full max-w-80 md:flex-row md:max-w-140">
+        <div className="flex flex-col gap-3 w-full mb-6 max-w-80 md:flex-row md:max-w-140">
             <div className="relative flex-1">
                 <Image
                     src={search}
