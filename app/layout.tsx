@@ -8,7 +8,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <body className="bg-blue-950">
                 <Header />
                 {children}
-                {/* <Footer/> */}
+                <Footer />
             </body>
         </html>
     );

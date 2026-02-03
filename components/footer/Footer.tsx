@@ -1,7 +1,20 @@
+import Image from 'next/image';
+import Link from 'next/link';
+import gitHub from '../../assets/images/github.png';
+
 export const Footer = () => {
     return (
-        <footer className="bg-blue-950 fixed bottom-0">
-            <span className="text-l text-white">created by Alina Iulbaeva</span>
+        <footer className="bg-gray-700 bottom-0 flex items-center justify-around py-3 mt-4">
+            <Link
+                className="text-sm text-white"
+                href={'https://github.com/alinidi'}
+                target="_blank"
+            >
+                created by Alina Iulbaeva
+            </Link>
+            <Link href={'https://github.com/alinidi'} target="_blank">
+                <Image src={gitHub} alt="github" width={20} />
+            </Link>
         </footer>
     );
 };
