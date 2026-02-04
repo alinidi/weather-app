@@ -7,18 +7,19 @@ import { SearchBar } from './searchBar/SearchBar';
 import { WeatherMetrics } from './weatherMetrics/WeatherMetrics';
 import { useEffect, useState } from 'react';
 import { useWeather } from '@/context/WeatherContext';
-import { getDailyForecastData, getHourlyForecastData } from '@/lib/utils/weatherUtils';
+import { getDailyForecastData, getHourlyForecastForDay } from '@/lib/utils/weatherUtils';
 import { DailyForecastItem, HourlyForecastItem } from '@/lib/api/types';
 
 export const WeatherDashboard = () => {
     const { weather, city, isLoading } = useWeather();
     const [dailyForecast, setDailyForecast] = useState<DailyForecastItem[]>([]);
     const [hourlyForecast, setHourlyForecast] = useState<HourlyForecastItem[]>([]);
+    const [selectedDayIndex, setSelectedDayIndex] = useState<number>(0);
 
     useEffect(() => {
         if (weather) {
             const dailyData = getDailyForecastData(weather);
-            const hourlyData = getHourlyForecastData(weather, 8);
+            const hourlyData = getHourlyForecastForDay(weather, selectedDayIndex, 8);
 
             setDailyForecast(dailyData);
             setHourlyForecast(hourlyData);
@@ -26,7 +27,7 @@ export const WeatherDashboard = () => {
             setDailyForecast([]);
             setHourlyForecast([]);
         }
-    }, [weather]);
+    }, [weather, selectedDayIndex]);
 
     const metrics = weather
         ? [
@@ -66,7 +67,30 @@ export const WeatherDashboard = () => {
               },
           ];
 
-    const weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    const generateDayOptions = () => {
+        const options = [
+            { value: 0, label: 'Today' },
+            { value: 1, label: 'Tomorrow' },
+        ];
+
+        if (dailyForecast.length > 2) {
+            for (let i = 2; i < Math.min(dailyForecast.length, 7); i++) {
+                options.push({
+                    value: i,
+                    label: dailyForecast[i]?.date || `Day ${i + 1}`,
+                });
+            }
+        }
+
+        return options;
+    };
+
+    const dayOptions = generateDayOptions();
+
+    const handleDayChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const dayIndex = parseInt(e.target.value);
+        setSelectedDayIndex(dayIndex);
+    };
 
     return (
         <div className="flex flex-col items-center gap-5">
@@ -124,16 +148,18 @@ export const WeatherDashboard = () => {
 
                     <div className="mt-5 md:mt-0">
                         <div className="bg-gray-700 rounded-2xl p-4 h-full flex flex-col justify-between">
-                            <div className="flex justify-between items-center">
+                            <div className="flex justify-between items-center mb-2">
                                 <p className="text-white text-xl">Hourly forecast</p>
                                 <select
                                     name="Days"
                                     id="days"
+                                    value={selectedDayIndex}
+                                    onChange={handleDayChange}
                                     className="bg-gray-600 rounded-sm text-white p-2 text-sm"
                                 >
-                                    {weekDays.map((day) => (
-                                        <option key={day} value={day}>
-                                            {day}
+                                    {dayOptions.map((option) => (
+                                        <option key={option.value} value={option.value}>
+                                            {option.label}
                                         </option>
                                     ))}
                                 </select>
@@ -159,7 +185,7 @@ export const WeatherDashboard = () => {
                                 ))
                             ) : (
                                 <div className="text-gray-400 text-center py-8">
-                                    No hourly forecast data available
+                                    No hourly forecast data available for selected day
                                 </div>
                             )}
                         </div>
