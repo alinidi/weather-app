@@ -5,9 +5,47 @@ import bgSmall from '../../assets/images/bg-today-small.svg';
 import bgLarge from '../../assets/images/bg-today-large.svg';
 import sunny from '../../assets/images/icon-sunny.webp';
 import { useEffect, useState } from 'react';
+import { SimpleCity, WeatherResponse } from '@/lib/api/types';
 
-export const CurrentWeather = () => {
+type CurrentWeatherProps = {
+    city: SimpleCity | null;
+    weather: WeatherResponse | null;
+};
+
+export const CurrentWeather = ({ city, weather }: CurrentWeatherProps) => {
     const [width, setWidth] = useState(0);
+
+    const formatDate = () => {
+        if (!weather?.current?.time) return 'Tuesday, Aug 5, 2026';
+
+        const date = new Date(weather.current.time);
+        return date.toLocaleDateString('en-US', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+        });
+    };
+
+    const getTemperature = () => {
+        if (!weather?.current?.temperature_2m) {
+            console.log('No temperature data, weather:', weather);
+            return '25°';
+        }
+
+        const temp = weather.current.temperature_2m;
+        console.log('Raw temperature from API:', temp);
+        console.log('Rounded temperature:', Math.round(temp));
+
+        return `${Math.round(temp)}°`;
+    };
+
+    const getCityName = () => {
+        if (city?.name) {
+            return `${city.name}, ${city.display_name.split(',').at(-1)}`;
+        }
+        return 'Berlin, Germany';
+    };
 
     useEffect(() => {
         const handleResize = () => {
@@ -23,18 +61,25 @@ export const CurrentWeather = () => {
     return (
         <div className="relative">
             <Image src={width > 640 ? bgLarge : bgSmall} alt="current weather" className="w-full" />
-            <div className="absolute inset-0 p-4 sm:p-8 flex flex-col sm:flex-row justify-between">
+            <div className="absolute inset-0 p-4 sm:p-8 flex flex-col sm:flex-row justify-evenly">
                 <div className="text-center sm:text-left sm:self-center">
-                    <p className="text-white font-bold text-3xl sm:text-4xl md:text-xl">
-                        Berlin, Germany
+                    <p className="text-white font-bold text-2xl sm:text-4xl md:text-base lg:text-2xl">
+                        {getCityName()}
                     </p>
-                    <p className="text-gray-300 text-lg sm:text-2xl mt-1 md:text-sm">
-                        Tuesday, Aug 5, 2026
+                    <p className="text-gray-300 text-lg sm:text-2xl mt-1 md:text-sm  lg:text-lg">
+                        {formatDate()}
                     </p>
                 </div>
                 <div className="flex flex-row items-center justify-between mt-6 sm:mt-0 sm:self-center">
-                    <Image width={200} className="sm:w-50 md:w-25" src={sunny} alt="weather icon" />
-                    <span className="text-7xl mb-3 text-white font-bold md:text-5xl">25&#176;</span>
+                    <Image
+                        width={150}
+                        className="sm:w-50 md:w-22 lg:w-18"
+                        src={sunny}
+                        alt="weather icon"
+                    />
+                    <span className="text-6xl mb-3 text-white font-bold md:text-3xl">
+                        {getTemperature()}
+                    </span>
                 </div>
             </div>
         </div>
