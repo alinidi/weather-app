@@ -14,6 +14,15 @@ import storm from '../assets/images/icon-storm.webp';
 import drizzle from '../assets/images/icon-drizzle.webp';
 import { useEffect } from 'react';
 import { useWeather } from '@/context/WeatherContext';
+import { getDailyForecastData } from '@/lib/utils/weatherUtils';
+import { StaticImageData } from 'next/image';
+
+type DailyForecastItem = {
+    date: string;
+    img: StaticImageData;
+    day: string;
+    night: string;
+};
 
 export const WeatherDashboard = () => {
     const { weather, city } = useWeather();
@@ -61,48 +70,50 @@ export const WeatherDashboard = () => {
               },
           ];
 
-    const dailyForecast = [
+    const dailyForecast = weather ? getDailyForecastData(weather) : [];
+
+    const fallbackDailyForecast = [
         {
-            date: 'Tue',
+            date: 'Mon',
             img: sunny,
             day: '20°',
             night: '14°',
         },
         {
-            date: 'Wed',
-            img: storm,
-            day: '20°',
-            night: '14°',
-        },
-        {
-            date: 'Thu',
-            img: drizzle,
-            day: '20°',
-            night: '14°',
-        },
-        {
-            date: 'Fri',
-            img: rain,
-            day: '21°',
-            night: '15°',
-        },
-        {
-            date: 'Sat',
+            date: 'Tue',
             img: cloudy,
             day: '21°',
             night: '15°',
         },
         {
-            date: 'Sun',
-            img: snow,
-            day: '25°',
+            date: 'Wed',
+            img: rain,
+            day: '19°',
+            night: '13°',
+        },
+        {
+            date: 'Thu',
+            img: drizzle,
+            day: '18°',
+            night: '12°',
+        },
+        {
+            date: 'Fri',
+            img: cloudy,
+            day: '22°',
             night: '16°',
         },
         {
-            date: 'Mon',
-            img: fog,
+            date: 'Sat',
+            img: sunny,
             day: '24°',
-            night: '15°',
+            night: '17°',
+        },
+        {
+            date: 'Sun',
+            img: storm,
+            day: '21°',
+            night: '14°',
         },
     ];
 
@@ -176,15 +187,25 @@ export const WeatherDashboard = () => {
                         <div className="mt-5">
                             <p className="text-white text-xl mb-4">Daily forecast</p>
                             <div className="grid grid-cols-3 gap-4 lg:grid-cols-7">
-                                {dailyForecast.map((day) => (
-                                    <DailyForecast
-                                        key={day.date}
-                                        date={day.date}
-                                        img={day.img}
-                                        day={day.day}
-                                        night={day.night}
-                                    />
-                                ))}
+                                {dailyForecast.length > 0
+                                    ? dailyForecast.map((day: DailyForecastItem, index: number) => (
+                                          <DailyForecast
+                                              key={`${day.date}-${index}`}
+                                              date={day.date}
+                                              img={day.img}
+                                              day={day.day}
+                                              night={day.night}
+                                          />
+                                      ))
+                                    : fallbackDailyForecast.map((day, index) => (
+                                          <DailyForecast
+                                              key={`fallback-${index}`}
+                                              date={day.date}
+                                              img={day.img}
+                                              day={day.day}
+                                              night={day.night}
+                                          />
+                                      ))}
                             </div>
                         </div>
                     </div>
