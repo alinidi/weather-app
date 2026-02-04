@@ -1,4 +1,5 @@
 # weather-app
+deploy: https://weather-app-omega-beige-56.vercel.app/
 
 A modern weather forecasting application built with Next.js that provides real-time weather data and forecasts.
 
