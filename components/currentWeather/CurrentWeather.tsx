@@ -6,6 +6,7 @@ import bgLarge from '../../assets/images/bg-today-large.svg';
 import sunny from '../../assets/images/icon-sunny.webp';
 import { useEffect, useState } from 'react';
 import { SimpleCity, WeatherResponse } from '@/lib/api/types';
+import { getDetailedWeatherIcon } from '@/lib/utils/weatherIcons';
 
 type CurrentWeatherProps = {
     city: SimpleCity | null;
@@ -47,6 +48,13 @@ export const CurrentWeather = ({ city, weather }: CurrentWeatherProps) => {
         return 'Berlin, Germany';
     };
 
+    const getWeatherIcon = () => {
+        if (weather?.current.weather_code !== undefined) {
+            return getDetailedWeatherIcon(weather.current.weather_code);
+        }
+        return sunny;
+    };
+
     useEffect(() => {
         const handleResize = () => {
             const width = window.innerWidth;
@@ -74,7 +82,7 @@ export const CurrentWeather = ({ city, weather }: CurrentWeatherProps) => {
                     <Image
                         width={150}
                         className="sm:w-50 md:w-22 lg:w-18"
-                        src={sunny}
+                        src={getWeatherIcon()}
                         alt="weather icon"
                     />
                     <span className="text-6xl mb-3 text-white font-bold md:text-3xl">
