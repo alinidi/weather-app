@@ -1,4 +1,4 @@
-import { SimpleCity, WeatherResponse } from '../api/types';
+import { HourlyForecastItem, SimpleCity, WeatherResponse } from '../api/types';
 import { getDetailedWeatherIcon } from './weatherIcons';
 import sunny from '../../assets/images/icon-sunny.webp';
 
@@ -55,4 +55,44 @@ export const getWeatherIcon = (weather: WeatherResponse | null) => {
         return getDetailedWeatherIcon(weather.current.weather_code);
     }
     return sunny;
+};
+
+export const getHourlyForecastData = (
+    weather: WeatherResponse | null,
+    hoursCount: number = 8
+): HourlyForecastItem[] => {
+    if (!weather?.hourly) return [];
+
+    const { time, temperature_2m, weather_code } = weather.hourly;
+
+    const now = new Date();
+    const currentHour = now.getHours();
+
+    let startIndex = 0;
+    for (let i = 0; i < time.length; i++) {
+        const dataTime = new Date(time[i]);
+        if (dataTime.getHours() >= currentHour) {
+            startIndex = i;
+            break;
+        }
+    }
+
+    const hourlyData: HourlyForecastItem[] = [];
+    for (let i = 0; i < hoursCount && startIndex + i < time.length; i++) {
+        const index = startIndex + i;
+        const timestamp = time[index];
+        const date = new Date(timestamp);
+
+        const hour = date.getHours();
+        const hour12 = hour % 12 || 12;
+        const ampm = hour >= 12 ? 'PM' : 'AM';
+
+        hourlyData.push({
+            hour: `${hour12}${ampm}`,
+            temp: `${Math.round(temperature_2m[index])}°`,
+            img: getDetailedWeatherIcon(weather_code[index]),
+        });
+    }
+
+    return hourlyData;
 };

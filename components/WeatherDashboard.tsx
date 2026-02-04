@@ -5,160 +5,66 @@ import { DailyForecast } from './dailyForecast/DailyForecast';
 import { HourlyForecast } from './hourlyForecast/HourlyForecast';
 import { SearchBar } from './searchBar/SearchBar';
 import { WeatherMetrics } from './weatherMetrics/WeatherMetrics';
-import sunny from '../assets/images/icon-sunny.webp';
-import rain from '../assets/images/icon-rain.webp';
-import snow from '../assets/images/icon-snow.webp';
-import fog from '../assets/images/icon-fog.webp';
-import cloudy from '../assets/images/icon-partly-cloudy.webp';
-import storm from '../assets/images/icon-storm.webp';
-import drizzle from '../assets/images/icon-drizzle.webp';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useWeather } from '@/context/WeatherContext';
-import { getDailyForecastData } from '@/lib/utils/weatherUtils';
-import { StaticImageData } from 'next/image';
-
-type DailyForecastItem = {
-    date: string;
-    img: StaticImageData;
-    day: string;
-    night: string;
-};
+import { getDailyForecastData, getHourlyForecastData } from '@/lib/utils/weatherUtils';
+import { DailyForecastItem, HourlyForecastItem } from '@/lib/api/types';
 
 export const WeatherDashboard = () => {
-    const { weather, city } = useWeather();
+    const { weather, city, isLoading } = useWeather();
+    const [dailyForecast, setDailyForecast] = useState<DailyForecastItem[]>([]);
+    const [hourlyForecast, setHourlyForecast] = useState<HourlyForecastItem[]>([]);
 
     useEffect(() => {
-        console.log('Dashboard - City updated:', city);
-        console.log('Dashboard - Weather updated:', weather?.current?.temperature_2m);
-    }, [city, weather]);
+        if (weather) {
+            const dailyData = getDailyForecastData(weather);
+            const hourlyData = getHourlyForecastData(weather, 8);
+
+            setDailyForecast(dailyData);
+            setHourlyForecast(hourlyData);
+        } else {
+            setDailyForecast([]);
+            setHourlyForecast([]);
+        }
+    }, [weather]);
 
     const metrics = weather
         ? [
               {
                   name: 'Feels Like',
-                  value: `${Math.round(weather.current.apparent_temperature)}°`,
+                  value: `${Math.round(weather.current?.apparent_temperature || 0)}°`,
               },
               {
                   name: 'Humidity',
-                  value: `${weather.current.relative_humidity_2m}%`,
+                  value: `${weather.current?.relative_humidity_2m || 0}%`,
               },
               {
                   name: 'Wind',
-                  value: `${weather.current.wind_speed_10m} km/h`,
+                  value: `${weather.current?.wind_speed_10m || 0} km/h`,
               },
               {
                   name: 'Precipitation',
-                  value: `${weather.current.precipitation} mm`,
+                  value: `${weather.current?.precipitation || 0} mm`,
               },
           ]
         : [
               {
                   name: 'Feels Like',
-                  value: '18°',
+                  value: '-',
               },
               {
                   name: 'Humidity',
-                  value: '46%',
+                  value: '-',
               },
               {
                   name: 'Wind',
-                  value: '14 km/h',
+                  value: '-',
               },
               {
                   name: 'Precipitation',
-                  value: '0 mm',
+                  value: '-',
               },
           ];
-
-    const dailyForecast = weather ? getDailyForecastData(weather) : [];
-
-    const fallbackDailyForecast = [
-        {
-            date: 'Mon',
-            img: sunny,
-            day: '20°',
-            night: '14°',
-        },
-        {
-            date: 'Tue',
-            img: cloudy,
-            day: '21°',
-            night: '15°',
-        },
-        {
-            date: 'Wed',
-            img: rain,
-            day: '19°',
-            night: '13°',
-        },
-        {
-            date: 'Thu',
-            img: drizzle,
-            day: '18°',
-            night: '12°',
-        },
-        {
-            date: 'Fri',
-            img: cloudy,
-            day: '22°',
-            night: '16°',
-        },
-        {
-            date: 'Sat',
-            img: sunny,
-            day: '24°',
-            night: '17°',
-        },
-        {
-            date: 'Sun',
-            img: storm,
-            day: '21°',
-            night: '14°',
-        },
-    ];
-
-    const hourlyForecast = [
-        {
-            img: cloudy,
-            hour: '3PM',
-            temp: '20°',
-        },
-        {
-            img: sunny,
-            hour: '4PM',
-            temp: '20°',
-        },
-        {
-            img: drizzle,
-            hour: '5PM',
-            temp: '20°',
-        },
-        {
-            img: storm,
-            hour: '6PM',
-            temp: '8°',
-        },
-        {
-            img: snow,
-            hour: '7PM',
-            temp: '20°',
-        },
-        {
-            img: cloudy,
-            hour: '8PM',
-            temp: '20°',
-        },
-        {
-            img: cloudy,
-            hour: '9PM',
-            temp: '20°',
-        },
-        {
-            img: cloudy,
-            hour: '10PM',
-            temp: '20°',
-        },
-    ];
 
     const weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
@@ -172,6 +78,7 @@ export const WeatherDashboard = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 md:gap-8">
                     <div className="flex flex-col gap-5">
                         <CurrentWeather city={city} weather={weather} />
+
                         <div className="mt-5">
                             <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 md:grid-cols-2">
                                 {metrics.map((metric) => (
@@ -186,29 +93,35 @@ export const WeatherDashboard = () => {
 
                         <div className="mt-5">
                             <p className="text-white text-xl mb-4">Daily forecast</p>
-                            <div className="grid grid-cols-3 gap-4 lg:grid-cols-7">
-                                {dailyForecast.length > 0
-                                    ? dailyForecast.map((day: DailyForecastItem, index: number) => (
-                                          <DailyForecast
-                                              key={`${day.date}-${index}`}
-                                              date={day.date}
-                                              img={day.img}
-                                              day={day.day}
-                                              night={day.night}
-                                          />
-                                      ))
-                                    : fallbackDailyForecast.map((day, index) => (
-                                          <DailyForecast
-                                              key={`fallback-${index}`}
-                                              date={day.date}
-                                              img={day.img}
-                                              day={day.day}
-                                              night={day.night}
-                                          />
-                                      ))}
-                            </div>
+                            {isLoading ? (
+                                <div className="grid grid-cols-3 gap-4 lg:grid-cols-7">
+                                    {Array.from({ length: 7 }).map((_, index) => (
+                                        <div
+                                            key={`skeleton-daily-${index}`}
+                                            className="bg-gray-700 rounded-xl p-3 w-auto h-24 animate-pulse"
+                                        />
+                                    ))}
+                                </div>
+                            ) : dailyForecast.length > 0 ? (
+                                <div className="grid grid-cols-3 gap-4 lg:grid-cols-7">
+                                    {dailyForecast.map((day: DailyForecastItem, index: number) => (
+                                        <DailyForecast
+                                            key={`${day.date}-${index}`}
+                                            date={day.date}
+                                            img={day.img}
+                                            day={day.day}
+                                            night={day.night}
+                                        />
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="text-gray-400 text-center py-8">
+                                    No daily forecast data available
+                                </div>
+                            )}
                         </div>
                     </div>
+
                     <div className="mt-5 md:mt-0">
                         <div className="bg-gray-700 rounded-2xl p-4 h-full flex flex-col justify-between">
                             <div className="flex justify-between items-center">
@@ -225,14 +138,30 @@ export const WeatherDashboard = () => {
                                     ))}
                                 </select>
                             </div>
-                            {hourlyForecast.map((hour) => (
-                                <HourlyForecast
-                                    key={`${hour.hour}-${hour.temp}`}
-                                    img={hour.img}
-                                    hour={hour.hour}
-                                    temp={hour.temp}
-                                />
-                            ))}
+
+                            {isLoading ? (
+                                <div className="space-y-2">
+                                    {Array.from({ length: 8 }).map((_, index) => (
+                                        <div
+                                            key={`skeleton-hourly-${index}`}
+                                            className="bg-gray-600 rounded-sm p-2 w-full h-12 animate-pulse"
+                                        />
+                                    ))}
+                                </div>
+                            ) : hourlyForecast.length > 0 ? (
+                                hourlyForecast.map((hour: HourlyForecastItem, index: number) => (
+                                    <HourlyForecast
+                                        key={`${hour.hour}-${index}`}
+                                        img={hour.img}
+                                        hour={hour.hour}
+                                        temp={hour.temp}
+                                    />
+                                ))
+                            ) : (
+                                <div className="text-gray-400 text-center py-8">
+                                    No hourly forecast data available
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

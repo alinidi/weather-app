@@ -1,3 +1,5 @@
+import { StaticImageData } from 'next/image';
+
 export type NominatimCity = {
     place_id: number;
     licence: string;
@@ -97,4 +99,22 @@ export type SimpleCity = {
     lon: string;
     display_name: string;
     name: string;
+};
+
+export type HourlyForecastItem = {
+    img: StaticImageData;
+    hour: string;
+    temp: string;
+};
+
+export type DailyForecastItem = {
+    date: string;
+    img: StaticImageData;
+    day: string;
+    night: string;
+};
+
+export type WeatherMetric = {
+    name: string;
+    value: string;
 };
